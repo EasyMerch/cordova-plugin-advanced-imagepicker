@@ -144,8 +144,10 @@ import YPImagePicker
                 break;
             }
         }
-        let result:CDVPluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: array);
-        self.commandDelegate.send(result, callbackId: _callbackId)
+        let result:CDVPluginResult = CDVPluginResult(status: .ok, messageAs: array);
+        if let callbackId = _callbackId {
+            self.commandDelegate.send(result, callbackId: callbackId)
+        }
     }
 
     func encodeImage(image: UIImage, asBase64: Bool, asJpeg: Bool) -> String {
@@ -186,14 +188,15 @@ import YPImagePicker
     }
 
     func returnError(callbackId: String?, error: ErrorCodes, message: String = "") {
-        if(callbackId != nil) {
-            let result:CDVPluginResult = CDVPluginResult(
-                status: CDVCommandStatus_ERROR, messageAs: [
-                    "code": error.rawValue,
-                    "message": message
-            ]);
-            self.commandDelegate.send(result, callbackId: callbackId)
+        guard let callbackId = callbackId else {
+            return
         }
+        let result:CDVPluginResult = CDVPluginResult(
+            status: .error, messageAs: [
+                "code": error.rawValue,
+                "message": message
+        ]);
+        self.commandDelegate.send(result, callbackId: callbackId)
     }
 
     func returnError(error: ErrorCodes, message: String = "") {
@@ -215,7 +218,7 @@ import YPImagePicker
             returnError(callbackId: command.callbackId, error: ErrorCodes.UnknownError, message: error.localizedDescription);
             return;
         }
-        let result:CDVPluginResult = CDVPluginResult(status: CDVCommandStatus_OK);
+        let result:CDVPluginResult = CDVPluginResult(status: .ok);
         self.commandDelegate.send(result, callbackId: command.callbackId);
     }
 
